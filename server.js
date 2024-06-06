@@ -6,11 +6,11 @@ const dialogflow = require("@google-cloud/dialogflow");
 const util = require("util");
 const {struct} = require('pb-util');
 
+const serviceAccountKey = "test1-424613-b9a000e5ebd4.json"
 
 const CREDENTIALS = JSON.parse(
-  fs.readFileSync("test1-424613-b9a000e5ebd4.json")
+  fs.readFileSync(serviceAccountKey)
 );
-// const PROJECID = ;
 
 // Configuration for the client
 const CONFIGURATION = {
@@ -23,7 +23,7 @@ const CONFIGURATION = {
 // Instantiates a session client
 const sessionClient = new dialogflow.SessionsClient(CONFIGURATION);
 let projectId = CREDENTIALS.project_id;
-let sessionId = "123892759";
+let sessionId = "123892759"; // Random Session ID
 const languageCode = "en";
 
 const app = express();
@@ -52,18 +52,9 @@ app.use(express.static(__dirname));
 
 // Handle audio file uploads and send to Dialogflow
 app.post("/upload", upload.single("audio"), async (req, res) => {
-    // const webmFilePath = path.join(uploadsDir, req.file.filename);
-    // const wavFilePath = path.join(uploadsDir, `audio_${Date.now()}.wav`);
   const filePath = path.join(uploadsDir, req.file.filename);
 
   try {
-    // await new Promise((resolve, reject) => {
-    //     ffmpeg(webmFilePath)
-    //         .toFormat('wav')
-    //         .on('error', reject)
-    //         .on('end', resolve)
-    //         .save(wavFilePath);
-    // });
     const sessionPath = sessionClient.projectAgentSessionPath(
       projectId,
       sessionId
@@ -71,7 +62,6 @@ app.post("/upload", upload.single("audio"), async (req, res) => {
 
     const readFile = util.promisify(fs.readFile);
     const inputAudio = await readFile(filePath);
-    // const audioBytes = (await readFile(wavFilePath)).toString('base64');
 
     const request = {
       session: sessionPath,
